@@ -1,13 +1,15 @@
-<section class="home-container">
+<div class="home-container">
   <div class="home-content">
-    <h1>Bienvenidos a <span>Conociendo Juntos</span></h1>
-    <p>
-      Explora Orizaba de la mano de una guía apasionada que te mostrará lo mejor de nuestra bella ciudad mágica.
-    </p>
-    <a routerLink="/destinos" class="btn-explorar">Explorar Destinos</a>
+    <h1>Bienvenidos a Conociendo <span>Juntos</span></h1>
+    <p class="lead">Descubre los mejores destinos y vive la experiencia única en Orizaba, lleno de grandes atractivos turisticos, excelente clima, un ambiente agradable, rica gastronomia y demas.</p>
+    <button class="cta">Explora Ahora</button>
   </div>
 
-  <div class="home-image">
-    <img src="assets/img/orizaba-teleferico.jpg" alt="Vista de Orizaba y su teleférico">
+  <div class="home-carousel">
+    <img [src]="imagenes[imagenActual]" alt="Imagen turística" />
+    <div class="carousel-controls">
+      <button (click)="anterior()">&#10094;</button>
+      <button (click)="siguiente()">&#10095;</button>
+    </div>
   </div>
-</section>
+</div>

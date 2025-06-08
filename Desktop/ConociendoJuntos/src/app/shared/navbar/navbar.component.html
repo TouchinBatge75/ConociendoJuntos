@@ -1,5 +1,6 @@
 <nav class="navbar">
   <div class="logo">
+    <img src="assets/logo.png" alt="Logo" class="logo-img" />
     <a routerLink="/">Conociendo <span>Juntos</span></a>
   </div>
 
@@ -9,9 +10,9 @@
 
   <ul [class.active]="menuAbierto" class="nav-links">
     <li><a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }">Inicio</a></li>
-    <li><a routerLink="/destinos" routerLinkActive="activo">Destinos</a></li>
-    <li><a routerLink="/nosotros" routerLinkActive="activo">Nosotros</a></li>
+    <li><a routerLink="/destinos" routerLinkActive="activo">Atractivos</a></li>
     <li><a routerLink="/promociones" routerLinkActive="activo">Promociones</a></li>
+    <li><a routerLink="/nosotros" routerLinkActive="activo">Nosotros</a></li>
     <li><a routerLink="/contactanos" routerLinkActive="activo">Contáctanos</a></li>
   </ul>
 </nav>
