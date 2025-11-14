@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Turnos - Recepción</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-section, .turnos-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+            width: auto;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .turno-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .turno-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .turno-info {
+            color: #666;
+            margin: 5px 0;
+        }
+        .hidden {
+            display: none;
+        }
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .turno-acciones {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            text-align: right;
+        }
+
+        .turno-acciones button {
+            padding: 5px 10px;
+            margin-left: 5px;
+            font-size: 12px;
+            background-color: #6c757d;
+        }
+
+        .turno-acciones button:hover {
+            background-color: #545b62;
+        }
+
+        .turno-acciones button:first-child {
+            background-color: #17a2b8;
+        }
+
+        .turno-acciones button:first-child:hover {
+            background-color: #138496;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Sistema de Turnos - Recepción</h1>
+        
+        <!-- Formulario para crear turnos -->
+        <div class="form-section">
+            <h2 class="section-title">Crear Nuevo Turno</h2>
+            <form id="formTurno">
+                <div class="form-group">
+                    <label for="paciente_nombre">Nombre del Paciente:</label>
+                    <input type="text" id="paciente_nombre" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paciente_edad">Edad:</label>
+                    <input type="number" id="paciente_edad" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tipo">Tipo de Turno:</label>
+                    <select id="tipo" required onchange="mostrarOpcionesEspecificas()">
+                        <option value="">Seleccionar tipo</option>
+                        <option value="CITA">Con Cita</option>
+                        <option value="SIN_CITA">Sin Cita</option>
+                    </select>
+                </div>
+                
+                <!-- Opciones específicas para pacientes con cita -->
+                <div class="form-group hidden" id="opcionesCita">
+                    <label for="estacion_inicial">Destino Inicial:</label>
+                    <select id="estacion_inicial" onchange="mostrarSelectorDoctor()">
+                        <option value="">Seleccionar destino</option>
+                        <option value="3">Toma de Calculos</option>
+                        <option value="4">Consulta Medica</option>
+                        <option value="5">Farmacia</option>
+                        <option value="6">Asesoria Visual</option>
+                        <option value="7">Estudios Especiales</option>
+                    </select>
+                </div>
+                
+                <!-- Selector de Doctores (solo para Consulta Médica) -->
+                <div class="form-group hidden" id="selectorDoctor">
+                    <label for="doctor_asignado">Seleccionar Doctor:</label>
+                    <select id="doctor_asignado">
+                        <option value="">Seleccionar doctor</option>
+                        <!-- Los doctores se cargarán dinámicamente -->
+                    </select>
+                </div>
+                
+                <!-- Para pacientes sin cita, siempre van a Trabajo Social -->
+                <div class="form-group hidden" id="opcionesSinCita">
+                    <label>Destino Inicial:</label>
+                    <input type="text" value="Trabajo Social" disabled style="background-color: #e9ecef;">
+                    <input type="hidden" id="estacion_sin_cita" value="2">
+                </div>
+                
+                <button type="submit">Generar Turno</button>
+            </form>
+        </div>
+        <!-- Buscador de turnos -->
+        <div class="busqueda-section">
+            <h3>🔍 Buscar Turno</h3>
+            <input type="text" id="buscarTurno" placeholder="Buscar por número o nombre...">
+            <button onclick="buscarTurno()">Buscar</button>
+        </div>
+
+        <!-- Lista de turnos activos -->
+        <div class="turnos-section">
+            <h2 class="section-title">Turnos Activos</h2>
+            <div id="listaTurnos">
+                <p>Cargando turnos...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar turnos y doctores al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarTurnos();
+            cargarDoctores();
+            mostrarOpcionesEspecificas();
+        });
+
+        // Cargar lista de doctores activos
+        function cargarDoctores() {
+            fetch('/api/doctores')
+                .then(response => response.json())
+                .then(doctores => {
+                    const selector = document.getElementById('doctor_asignado');
+                    selector.innerHTML = '<option value="">Seleccionar doctor</option>';
+                    
+                    doctores.forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = doctor.id;
+                        option.textContent = `${doctor.nombre} - ${doctor.especialidad}`;
+                        selector.appendChild(option);
+                    });
+                });
+        }
+
+        // Mostrar/ocultar opciones según tipo de turno
+        function mostrarOpcionesEspecificas() {
+            const tipo = document.getElementById('tipo').value;
+            const opcionesCita = document.getElementById('opcionesCita');
+            const opcionesSinCita = document.getElementById('opcionesSinCita');
+            const selectorDoctor = document.getElementById('selectorDoctor');
+            
+            // Ocultar todo primero
+            opcionesCita.classList.add('hidden');
+            opcionesSinCita.classList.add('hidden');
+            selectorDoctor.classList.add('hidden');
+            
+            if (tipo === 'CITA') {
+                opcionesCita.classList.remove('hidden');
+            } else if (tipo === 'SIN_CITA') {
+                opcionesSinCita.classList.remove('hidden');
+            }
+        }
+
+        // Mostrar selector de doctores solo cuando se selecciona Consulta Médica
+        function mostrarSelectorDoctor() {
+            const estacionSeleccionada = document.getElementById('estacion_inicial').value;
+            const selectorDoctor = document.getElementById('selectorDoctor');
+            
+            if (estacionSeleccionada === '4') { // 6 = Consulta Médica
+                selectorDoctor.classList.remove('hidden');
+            } else {
+                selectorDoctor.classList.add('hidden');
+                document.getElementById('doctor_asignado').value = '';
+            }
+        }
+
+        // Crear nuevo turno
+        document.getElementById('formTurno').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const tipo = document.getElementById('tipo').value;
+            let estacion_inicial, doctor_asignado;
+            
+            if (tipo === 'CITA') {
+                estacion_inicial = document.getElementById('estacion_inicial').value;
+                doctor_asignado = document.getElementById('doctor_asignado').value || null;
+            } else {
+                estacion_inicial = document.getElementById('estacion_sin_cita').value;
+                doctor_asignado = null;
+            }
+            
+            // Validaciones
+            if (!estacion_inicial) {
+                alert('Por favor selecciona un destino inicial');
+                return;
+            }
+            
+            const datos = {
+                paciente_nombre: document.getElementById('paciente_nombre').value,
+                paciente_edad: document.getElementById('paciente_edad').value,
+                tipo: tipo,
+                estacion_inicial: parseInt(estacion_inicial),
+                doctor_asignado: doctor_asignado ? parseInt(doctor_asignado) : null
+            };
+
+            fetch('/api/turnos/nuevo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`✅ Turno generado: ${data.numero_turno}`);
+                    document.getElementById('formTurno').reset();
+                    mostrarOpcionesEspecificas();
+                    cargarTurnos();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al crear el turno');
+            });
+        });
+
+        // Función para cargar turnos
+        function cargarTurnos() {
+            fetch('/api/turnos')
+                .then(response => response.json())
+                .then(turnos => {
+                    const lista = document.getElementById('listaTurnos');
+                    
+                    if (turnos.length === 0) {
+                        lista.innerHTML = '<p>No hay turnos activos</p>';
+                        return;
+                    }
+
+                    lista.innerHTML = turnos.map(turno => `
+                        <div class="turno-card">
+                            <div class="turno-header">Turno ${turno.numero}</div>
+                            <div class="turno-info">Paciente: ${turno.paciente_nombre}</div>
+                            <div class="turno-info">Edad: ${turno.paciente_edad} años</div>
+                            <div class="turno-info">Tipo: ${turno.tipo === 'CITA' ? 'Con Cita' : 'Sin Cita'}</div>
+                            <div class="turno-info">Estación: ${turno.estacion_actual_nombre || 'Recepción'}</div>
+                            <div class="turno-info">Estado: ${turno.estado}</div>
+                            ${turno.doctor_nombre ? `<div class="turno-info">Doctor: ${turno.doctor_nombre}</div>` : ''}
+
+                             <!-- BOTONES DE ACCIONES DENTRO DE CADA TURNO -->
+                            <div class="turno-acciones">
+                                <button onclick="moverTurno(${turno.id})">🔄 Editar</button>
+                                <button onclick="cancelarTurno(${turno.id})">❌ Cancelar</button>
+                            </div>
+                            
+                        </div>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('Error cargando turnos:', error);
+                    document.getElementById('listaTurnos').innerHTML = '<p>Error al cargar los turnos</p>';
+                });
+        }
+
+        // Actualizar cada 10 segundos
+        setInterval(cargarTurnos, 10000);
+
+        function editarTurno(turnoId) {
+    fetch('/api/turnos')
+        .then(response => response.json())
+        .then(turnos => {
+            const turno = turnos.find(t => t.id === turnoId);
+            if (!turno) return;
+            
+            const nuevoNombre = prompt('Nuevo nombre del paciente:', turno.paciente_nombre);
+            if (nuevoNombre === null) return;
+            
+            const nuevaEdad = prompt('Nueva edad:', turno.paciente_edad);
+            if (nuevaEdad === null) return;
+            
+            const nuevoTipo = confirm('¿Es con cita? (Aceptar = Con cita, Cancelar = Sin cita)') ? 'CITA' : 'SIN_CITA';
+            
+            const nuevaEstacion = prompt('Nueva estación (IDs: 2=Trabajo Social, 3=Agudeza Visual, 4=Toma Cálculos, 5=Asesoría Visual, 6=Consulta Médica, 7=Estudios Especiales):', turno.estacion_actual);
+            if (nuevaEstacion === null) return;
+            
+            const datos = {
+                paciente_nombre: nuevoNombre,
+                paciente_edad: parseInt(nuevaEdad),
+                tipo: nuevoTipo,
+                estacion_actual: parseInt(nuevaEstacion),
+                doctor_asignado: turno.doctor_asignado
+            };
+            
+            fetch(`/api/turnos/${turnoId}/editar`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Turno editado correctamente');
+                    cargarTurnos();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al editar el turno');
+            });
+        });
+}
+
+// Función para cancelar turno
+function cancelarTurno(turnoId) {
+    if (confirm('¿Estás seguro de que quieres cancelar este turno?')) {
+        fetch(`/api/turnos/${turnoId}/cancelar`, {
+            method: 'PUT'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Turno cancelado');
+                cargarTurnos();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cancelar el turno');
+        });
+    }
+}
+    </script>
+</body>
+</html>
