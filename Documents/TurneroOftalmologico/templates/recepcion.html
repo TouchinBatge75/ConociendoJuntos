@@ -100,6 +100,65 @@
         .turno-acciones button:first-child:hover {
             background-color: #138496;
         }
+        /* Estilos para el modal */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    position: relative;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .close:hover {
+        color: black;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+        text-align: right;
+    }
+
+    .form-actions button {
+        margin-left: 10px;
+    }
+
+    .form-actions button[type="button"] {
+        background-color: #6c757d;
+    }
+
+    .form-actions button[type="button"]:hover {
+        background-color: #545b62;
+    }
+
+    .form-actions button[type="submit"] {
+        background-color: #28a745;
+    }
+
+    .form-actions button[type="submit"]:hover {
+        background-color: #218838;
+    }
         
     </style>
 </head>
@@ -177,6 +236,58 @@
             </div>
         </div>
     </div>
+    <div id="modalEditar" class="modal hidden">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>✏️ Editar Turno</h2>
+        <form id="formEditarTurno">
+            <input type="hidden" id="editar_turno_id">
+            
+            <div class="form-group">
+                <label for="editar_paciente_nombre">Nombre del Paciente:</label>
+                <input type="text" id="editar_paciente_nombre" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="editar_paciente_edad">Edad:</label>
+                <input type="number" id="editar_paciente_edad" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="editar_tipo">Tipo de Turno:</label>
+                <select id="editar_tipo" required>
+                    <option value="CITA">Con Cita</option>
+                    <option value="SIN_CITA">Sin Cita</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="editar_estacion_actual">Estación Actual:</label>
+                <select id="editar_estacion_actual" required>
+                    <option value="2">Trabajo Social</option>
+                    <option value="3">Toma de Cálculos</option>
+                    <option value="4">Consulta Médica</option>
+                    <option value="5">Farmacia</option>
+                    <option value="6">Asesoría Visual</option>
+                    <option value="7">Estudios Especiales</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="editar_selector_doctor_container">
+                <label for="editar_doctor_asignado">Doctor Asignado:</label>
+                <select id="editar_doctor_asignado">
+                    <option value="">Sin doctor asignado</option>
+                    <!-- Se llenará dinámicamente -->
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
 
     <script>
         // Cargar turnos y doctores al iniciar
@@ -288,68 +399,129 @@
 
         // Función para cargar turnos
         function cargarTurnos() {
-            fetch('/api/turnos')
-                .then(response => response.json())
-                .then(turnos => {
-                    const lista = document.getElementById('listaTurnos');
-                    
-                    if (turnos.length === 0) {
-                        lista.innerHTML = '<p>No hay turnos activos</p>';
-                        return;
-                    }
-
-                    lista.innerHTML = turnos.map(turno => `
-                        <div class="turno-card">
-                            <div class="turno-header">Turno ${turno.numero}</div>
-                            <div class="turno-info">Paciente: ${turno.paciente_nombre}</div>
-                            <div class="turno-info">Edad: ${turno.paciente_edad} años</div>
-                            <div class="turno-info">Tipo: ${turno.tipo === 'CITA' ? 'Con Cita' : 'Sin Cita'}</div>
-                            <div class="turno-info">Estación: ${turno.estacion_actual_nombre || 'Recepción'}</div>
-                            <div class="turno-info">Estado: ${turno.estado}</div>
-                            ${turno.doctor_nombre ? `<div class="turno-info">Doctor: ${turno.doctor_nombre}</div>` : ''}
-
-                             <!-- BOTONES DE ACCIONES DENTRO DE CADA TURNO -->
-                            <div class="turno-acciones">
-                                <button onclick="moverTurno(${turno.id})">🔄 Editar</button>
-                                <button onclick="cancelarTurno(${turno.id})">❌ Cancelar</button>
-                            </div>
-                            
-                        </div>
-                    `).join('');
-                })
-                .catch(error => {
-                    console.error('Error cargando turnos:', error);
-                    document.getElementById('listaTurnos').innerHTML = '<p>Error al cargar los turnos</p>';
-                });
-        }
-
-        // Actualizar cada 10 segundos
-        setInterval(cargarTurnos, 10000);
-
-        function editarTurno(turnoId) {
     fetch('/api/turnos')
         .then(response => response.json())
         .then(turnos => {
-            const turno = turnos.find(t => t.id === turnoId);
-            if (!turno) return;
+            console.log("DEBUG - Datos recibidos:", turnos); // ← Para verificar en consola
             
-            const nuevoNombre = prompt('Nuevo nombre del paciente:', turno.paciente_nombre);
-            if (nuevoNombre === null) return;
+            const lista = document.getElementById('listaTurnos');
             
-            const nuevaEdad = prompt('Nueva edad:', turno.paciente_edad);
-            if (nuevaEdad === null) return;
+            if (turnos.length === 0) {
+                lista.innerHTML = '<p>No hay turnos activos</p>';
+                return;
+            }
+
+            // CUANDO SÍ HAY TURNOS - esto estaba faltando
+            lista.innerHTML = turnos.map(turno => `
+                <div class="turno-card">
+                    <div class="turno-header">Turno ${turno.numero}</div>
+                    <div class="turno-info">Paciente: ${turno.paciente_nombre}</div>
+                    <div class="turno-info">Edad: ${turno.paciente_edad} años</div>
+                    <div class="turno-info">Tipo: ${turno.tipo === 'CITA' ? 'Con Cita' : 'Sin Cita'}</div>
+                    <div class="turno-info">Estación: ${turno.estacion_actual_nombre || 'Recepción'}</div>
+                    <div class="turno-info">Estado: ${turno.estado}</div>
+                    ${turno.doctor_nombre ? `<div class="turno-info">Doctor: ${turno.doctor_nombre}</div>` : ''}
+
+                    <!-- BOTONES CORREGIDOS -->
+                    <div class="turno-acciones">
+                        <button onclick="editarTurno(${turno.id})">✏️ Editar</button>
+                        <button onclick="cancelarTurno(${turno.id})">❌ Cancelar</button>
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(error => {
+            console.error('Error cargando turnos:', error);
+            document.getElementById('listaTurnos').innerHTML = '<p>Error al cargar los turnos</p>';
+        });
+}
+
+        // Actualizar cada 10 segundos
+        setInterval(cargarTurnos, 10000);
+        function editarTurno(turnoId) {
+            fetch('/api/turnos')
+                .then(response => response.json())
+                .then(turnos => {
+                    const turno = turnos.find(t => t.id === turnoId);
+                    if (!turno) {
+                        alert('Turno no encontrado');
+                        return;
+                    }
+                    
+                    // Llenar el formulario con los datos actuales
+                    document.getElementById('editar_turno_id').value = turno.id;
+                    document.getElementById('editar_paciente_nombre').value = turno.paciente_nombre;
+                    document.getElementById('editar_paciente_edad').value = turno.paciente_edad;
+                    document.getElementById('editar_tipo').value = turno.tipo;
+                    document.getElementById('editar_estacion_actual').value = turno.estacion_actual;
+                    
+                    // Cargar doctores en el selector
+                    cargarDoctoresParaEdicion();
+                    
+                    // Mostrar/ocultar selector de doctor según estación
+                    mostrarSelectorDoctorEdicion(turno.estacion_actual);
+                    
+                    // Seleccionar el doctor actual si existe
+                    if (turno.doctor_asignado) {
+                        document.getElementById('editar_doctor_asignado').value = turno.doctor_asignado;
+                    }
+                    
+                    // Mostrar el modal
+                    document.getElementById('modalEditar').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar datos del turno');
+                });
+        }
+
+        // Función para cargar doctores en el modal de edición
+        function cargarDoctoresParaEdicion() {
+            fetch('/api/doctores')
+                .then(response => response.json())
+                .then(doctores => {
+                    const selector = document.getElementById('editar_doctor_asignado');
+                    selector.innerHTML = '<option value="">Sin doctor asignado</option>';
+                    
+                    doctores.forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = doctor.id;
+                        option.textContent = `${doctor.nombre} - ${doctor.especialidad}`;
+                        selector.appendChild(option);
+                    });
+                });
+        }
+
+        // Mostrar/ocultar selector de doctor en edición
+        function mostrarSelectorDoctorEdicion(estacionId) {
+            const container = document.getElementById('editar_selector_doctor_container');
+            if (estacionId == 4) { // Consulta Médica
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+                document.getElementById('editar_doctor_asignado').value = '';
+            }
+        }
+
+        // Cerrar modal
+        function cerrarModal() {
+            document.getElementById('modalEditar').classList.add('hidden');
+        }
+
+        // Enviar formulario de edición
+        document.getElementById('formEditarTurno').addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            const nuevoTipo = confirm('¿Es con cita? (Aceptar = Con cita, Cancelar = Sin cita)') ? 'CITA' : 'SIN_CITA';
-            
-            const nuevaEstacion = prompt('Nueva estación (IDs: 2=Trabajo Social, 3=Agudeza Visual, 4=Toma Cálculos, 5=Asesoría Visual, 6=Consulta Médica, 7=Estudios Especiales):', turno.estacion_actual);
-            if (nuevaEstacion === null) return;
+            const turnoId = document.getElementById('editar_turno_id').value;
+            const estacionActual = document.getElementById('editar_estacion_actual').value;
             
             const datos = {
-                paciente_nombre: nuevoNombre,
-                paciente_edad: parseInt(nuevaEdad),
-                tipo: nuevoTipo,
-                estacion_actual: parseInt(nuevaEstacion),
-                doctor_asignado: turno.doctor_asignado
+                paciente_nombre: document.getElementById('editar_paciente_nombre').value,
+                paciente_edad: parseInt(document.getElementById('editar_paciente_edad').value),
+                tipo: document.getElementById('editar_tipo').value,
+                estacion_actual: parseInt(estacionActual),
+                doctor_asignado: estacionActual == 4 ? 
+                    (document.getElementById('editar_doctor_asignado').value || null) : null
             };
             
             fetch(`/api/turnos/${turnoId}/editar`, {
@@ -363,7 +535,10 @@
             .then(data => {
                 if (data.success) {
                     alert('✅ Turno editado correctamente');
+                    cerrarModal();
                     cargarTurnos();
+                } else {
+                    alert('Error al editar el turno');
                 }
             })
             .catch(error => {
@@ -371,27 +546,45 @@
                 alert('Error al editar el turno');
             });
         });
-}
 
-// Función para cancelar turno
-function cancelarTurno(turnoId) {
-    if (confirm('¿Estás seguro de que quieres cancelar este turno?')) {
-        fetch(`/api/turnos/${turnoId}/cancelar`, {
-            method: 'PUT'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('✅ Turno cancelado');
-                cargarTurnos();
+        // Cerrar modal al hacer clic en la X
+        document.querySelector('.close').addEventListener('click', cerrarModal);
+
+        // Cerrar modal al hacer clic fuera del contenido
+        document.getElementById('modalEditar').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModal();
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al cancelar el turno');
         });
-    }
-}
+
+        // Mostrar/ocultar selector de doctor cuando cambia la estación en edición
+        document.getElementById('editar_estacion_actual').addEventListener('change', function() {
+            mostrarSelectorDoctorEdicion(this.value);
+        });
+
+        // Función para cancelar turno (se mantiene igual)
+        function cancelarTurno(turnoId) {
+            if (confirm('¿Estás seguro de que quieres cancelar este turno?')) {
+                fetch(`/api/turnos/${turnoId}/cancelar`, {
+                    method: 'PUT'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Turno cancelado');
+                        cargarTurnos();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cancelar el turno');
+                });
+            }
+        }
+        
+
+
+
     </script>
 </body>
 </html>
