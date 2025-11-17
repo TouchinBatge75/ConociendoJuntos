@@ -87,6 +87,31 @@ def init_db():
     conn.commit()
     conn.close()
 
+    # Tabla de historial para estadísticas
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS historial_turnos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            turno_id INTEGER NOT NULL,
+            accion TEXT NOT NULL,  -- 'CREADO', 'CANCELADO', 'EDITADO', 'FINALIZADO'
+            detalles TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            usuario TEXT DEFAULT 'sistema',
+            FOREIGN KEY (turno_id) REFERENCES turnos (id)
+        )
+    ''')
+
+    # Agregar campos para tiempos en la tabla turnos
+    try:
+        conn.execute('ALTER TABLE turnos ADD COLUMN timestamp_cancelado DATETIME')
+        conn.execute('ALTER TABLE turnos ADD COLUMN razon_cancelacion TEXT')
+        conn.execute('ALTER TABLE turnos ADD COLUMN tiempo_total INTEGER')  # en minutos
+        print("Campos de estadísticas agregados a turnos")
+    except sqlite3.OperationalError:
+        print("Campos de estadísticas ya existen")
+
+    conn.commit()
+    conn.close()
+
 if __name__ == '__main__':
     init_db()
     print("Base de datos inicializada correctamente!")

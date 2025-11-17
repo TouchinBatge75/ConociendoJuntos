@@ -100,72 +100,204 @@
         .turno-acciones button:first-child:hover {
             background-color: #138496;
         }
+
         /* Estilos para el modal */
-.modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-}
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
 
-.modal-content {
-    background-color: white;
-    margin: 5% auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    position: relative;
-    }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: relative;
+        }
 
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-        line-height: 1;
-    }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
 
-    .close:hover {
-        color: black;
-    }
+        .close:hover {
+            color: black;
+        }
 
-    .form-actions {
-        margin-top: 20px;
-        text-align: right;
-    }
+        .form-actions {
+            margin-top: 20px;
+            text-align: right;
+        }
 
-    .form-actions button {
-        margin-left: 10px;
-    }
+        .form-actions button {
+            margin-left: 10px;
+        }
 
-    .form-actions button[type="button"] {
-        background-color: #6c757d;
-    }
+        .form-actions button[type="button"] {
+            background-color: #6c757d;
+        }
 
-    .form-actions button[type="button"]:hover {
-        background-color: #545b62;
-    }
+        .form-actions button[type="button"]:hover {
+            background-color: #545b62;
+        }
 
-    .form-actions button[type="submit"] {
-        background-color: #28a745;
-    }
+        .form-actions button[type="submit"] {
+            background-color: #28a745;
+        }
 
-    .form-actions button[type="submit"]:hover {
-        background-color: #218838;
-    }
-        
+        .form-actions button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        /* Estilos para estadísticas */
+        .estadisticas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .estadistica-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+            text-align: center;
+        }
+
+        .estadistica-valor {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 5px 0;
+        }
+
+        .estadistica-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .estadistica-tendencia {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .tendencia-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .tendencia-item:last-child {
+            border-bottom: none;
+        }
+
+        .estadistica-positiva {
+            color: #28a745;
+        }
+
+        .estadistica-negativa {
+            color: #dc3545;
+        }
+
+        /* Estilos para impresión */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #modalEstadisticas,
+            #modalEstadisticas * {
+                visibility: visible;
+            }
+            #modalEstadisticas {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+            }
+            .modal-content {
+                box-shadow: none;
+                margin: 0;
+                width: 100%;
+            }
+            .close, button {
+                display: none !important;
+            }
+        }
+
+        /* Estilos para formulario de botones */
+        .botones-rapidos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .boton-rapido {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .boton-rapido:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .boton-rapido.secundario {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .boton-rapido.terciario {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .boton-rapido.cuaternario {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🏥 Sistema de Turnos - Recepción</h1>
-        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>🏥 Sistema de Turnos - Recepción</h1>
+            <button onclick="abrirEstadisticas()" style="background-color: #28a745;">📊 Ver Estadísticas</button>
+        </div>
+
+        <!-- Formulario de Botones Rápidos -->
+        <div class="form-section">
+            <h2 class="section-title">Acciones Rápidas</h2>
+            <div class="botones-rapidos">
+                <button class="boton-rapido" onclick="limpiarFormulario()">🧹 Limpiar Formulario</button>
+                <button class="boton-rapido secundario" onclick="exportarDatos()">📤 Exportar Datos</button>
+                <button class="boton-rapido terciario" onclick="reiniciarSistema()">🔄 Reiniciar Sistema</button>
+                <button class="boton-rapido cuaternario" onclick="abrirConfiguracion()">⚙️ Configuración</button>
+                <button class="boton-rapido" onclick="verManual()">📖 Manual de Uso</button>
+                <button class="boton-rapido secundario" onclick="hacerBackup()">💾 Hacer Backup</button>
+            </div>
+        </div>
+
         <!-- Formulario para crear turnos -->
         <div class="form-section">
             <h2 class="section-title">Crear Nuevo Turno</h2>
@@ -194,10 +326,10 @@
                     <label for="estacion_inicial">Destino Inicial:</label>
                     <select id="estacion_inicial" onchange="mostrarSelectorDoctor()">
                         <option value="">Seleccionar destino</option>
-                        <option value="3">Toma de Calculos</option>
-                        <option value="4">Consulta Medica</option>
+                        <option value="3">Toma de Cálculos</option>
+                        <option value="4">Consulta Médica</option>
                         <option value="5">Farmacia</option>
-                        <option value="6">Asesoria Visual</option>
+                        <option value="6">Asesoría Visual</option>
                         <option value="7">Estudios Especiales</option>
                     </select>
                 </div>
@@ -221,6 +353,7 @@
                 <button type="submit">Generar Turno</button>
             </form>
         </div>
+
         <!-- Buscador de turnos -->
         <div class="busqueda-section">
             <h3>🔍 Buscar Turno</h3>
@@ -236,58 +369,86 @@
             </div>
         </div>
     </div>
-    <div id="modalEditar" class="modal hidden">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>✏️ Editar Turno</h2>
-        <form id="formEditarTurno">
-            <input type="hidden" id="editar_turno_id">
+
+    <!-- Modal de Estadísticas -->
+    <div id="modalEstadisticas" class="modal hidden">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" onclick="cerrarEstadisticas()">&times;</span>
+            <h2>📊 Estadísticas del Sistema</h2>
             
-            <div class="form-group">
-                <label for="editar_paciente_nombre">Nombre del Paciente:</label>
-                <input type="text" id="editar_paciente_nombre" required>
+            <!-- Selectores de fecha -->
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+                <div>
+                    <label for="estadistica_fecha">Fecha:</label>
+                    <input type="date" id="estadistica_fecha" onchange="cargarEstadisticas()">
+                </div>
+                <div>
+                    <label for="estadistica_mes">Mes:</label>
+                    <input type="month" id="estadistica_mes" onchange="cargarEstadisticasMensual()">
+                </div>
+                <button onclick="imprimirEstadisticas()" style="background-color: #17a2b8;">🖨️ Imprimir</button>
             </div>
-            
-            <div class="form-group">
-                <label for="editar_paciente_edad">Edad:</label>
-                <input type="number" id="editar_paciente_edad" required>
+
+            <!-- Contenedor de estadísticas -->
+            <div id="contenedorEstadisticas">
+                <p>Cargando estadísticas...</p>
             </div>
-            
-            <div class="form-group">
-                <label for="editar_tipo">Tipo de Turno:</label>
-                <select id="editar_tipo" required>
-                    <option value="CITA">Con Cita</option>
-                    <option value="SIN_CITA">Sin Cita</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="editar_estacion_actual">Estación Actual:</label>
-                <select id="editar_estacion_actual" required>
-                    <option value="2">Trabajo Social</option>
-                    <option value="3">Toma de Cálculos</option>
-                    <option value="4">Consulta Médica</option>
-                    <option value="5">Farmacia</option>
-                    <option value="6">Asesoría Visual</option>
-                    <option value="7">Estudios Especiales</option>
-                </select>
-            </div>
-            
-            <div class="form-group" id="editar_selector_doctor_container">
-                <label for="editar_doctor_asignado">Doctor Asignado:</label>
-                <select id="editar_doctor_asignado">
-                    <option value="">Sin doctor asignado</option>
-                    <!-- Se llenará dinámicamente -->
-                </select>
-            </div>
-            
-            <div class="form-actions">
-                <button type="button" onclick="cerrarModal()">Cancelar</button>
-                <button type="submit">Guardar Cambios</button>
-            </div>
-        </form>
+        </div>
     </div>
-</div>
+
+    <!-- Modal de Edición -->
+    <div id="modalEditar" class="modal hidden">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>✏️ Editar Turno</h2>
+            <form id="formEditarTurno">
+                <input type="hidden" id="editar_turno_id">
+                
+                <div class="form-group">
+                    <label for="editar_paciente_nombre">Nombre del Paciente:</label>
+                    <input type="text" id="editar_paciente_nombre" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editar_paciente_edad">Edad:</label>
+                    <input type="number" id="editar_paciente_edad" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editar_tipo">Tipo de Turno:</label>
+                    <select id="editar_tipo" required>
+                        <option value="CITA">Con Cita</option>
+                        <option value="SIN_CITA">Sin Cita</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editar_estacion_actual">Estación Actual:</label>
+                    <select id="editar_estacion_actual" required>
+                        <option value="2">Trabajo Social</option>
+                        <option value="3">Toma de Cálculos</option>
+                        <option value="4">Consulta Médica</option>
+                        <option value="5">Farmacia</option>
+                        <option value="6">Asesoría Visual</option>
+                        <option value="7">Estudios Especiales</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="editar_selector_doctor_container">
+                    <label for="editar_doctor_asignado">Doctor Asignado:</label>
+                    <select id="editar_doctor_asignado">
+                        <option value="">Sin doctor asignado</option>
+                        <!-- Se llenará dinámicamente -->
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         // Cargar turnos y doctores al iniciar
@@ -338,7 +499,7 @@
             const estacionSeleccionada = document.getElementById('estacion_inicial').value;
             const selectorDoctor = document.getElementById('selectorDoctor');
             
-            if (estacionSeleccionada === '4') { // 6 = Consulta Médica
+            if (estacionSeleccionada === '4') {
                 selectorDoctor.classList.remove('hidden');
             } else {
                 selectorDoctor.classList.add('hidden');
@@ -399,45 +560,44 @@
 
         // Función para cargar turnos
         function cargarTurnos() {
-    fetch('/api/turnos')
-        .then(response => response.json())
-        .then(turnos => {
-            console.log("DEBUG - Datos recibidos:", turnos); // ← Para verificar en consola
-            
-            const lista = document.getElementById('listaTurnos');
-            
-            if (turnos.length === 0) {
-                lista.innerHTML = '<p>No hay turnos activos</p>';
-                return;
-            }
+            fetch('/api/turnos')
+                .then(response => response.json())
+                .then(turnos => {
+                    console.log("DEBUG - Datos recibidos:", turnos);
+                    
+                    const lista = document.getElementById('listaTurnos');
+                    
+                    if (turnos.length === 0) {
+                        lista.innerHTML = '<p>No hay turnos activos</p>';
+                        return;
+                    }
 
-            // CUANDO SÍ HAY TURNOS - esto estaba faltando
-            lista.innerHTML = turnos.map(turno => `
-                <div class="turno-card">
-                    <div class="turno-header">Turno ${turno.numero}</div>
-                    <div class="turno-info">Paciente: ${turno.paciente_nombre}</div>
-                    <div class="turno-info">Edad: ${turno.paciente_edad} años</div>
-                    <div class="turno-info">Tipo: ${turno.tipo === 'CITA' ? 'Con Cita' : 'Sin Cita'}</div>
-                    <div class="turno-info">Estación: ${turno.estacion_actual_nombre || 'Recepción'}</div>
-                    <div class="turno-info">Estado: ${turno.estado}</div>
-                    ${turno.doctor_nombre ? `<div class="turno-info">Doctor: ${turno.doctor_nombre}</div>` : ''}
+                    lista.innerHTML = turnos.map(turno => `
+                        <div class="turno-card">
+                            <div class="turno-header">Turno ${turno.numero}</div>
+                            <div class="turno-info">Paciente: ${turno.paciente_nombre}</div>
+                            <div class="turno-info">Edad: ${turno.paciente_edad} años</div>
+                            <div class="turno-info">Tipo: ${turno.tipo === 'CITA' ? 'Con Cita' : 'Sin Cita'}</div>
+                            <div class="turno-info">Estación: ${turno.estacion_actual_nombre || 'Recepción'}</div>
+                            <div class="turno-info">Estado: ${turno.estado}</div>
+                            ${turno.doctor_nombre ? `<div class="turno-info">Doctor: ${turno.doctor_nombre}</div>` : ''}
 
-                    <!-- BOTONES CORREGIDOS -->
-                    <div class="turno-acciones">
-                        <button onclick="editarTurno(${turno.id})">✏️ Editar</button>
-                        <button onclick="cancelarTurno(${turno.id})">❌ Cancelar</button>
-                    </div>
-                </div>
-            `).join('');
-        })
-        .catch(error => {
-            console.error('Error cargando turnos:', error);
-            document.getElementById('listaTurnos').innerHTML = '<p>Error al cargar los turnos</p>';
-        });
-}
+                            <div class="turno-acciones">
+                                <button onclick="editarTurno(${turno.id})">✏️ Editar</button>
+                                <button onclick="cancelarTurno(${turno.id})">❌ Cancelar</button>
+                            </div>
+                        </div>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('Error cargando turnos:', error);
+                    document.getElementById('listaTurnos').innerHTML = '<p>Error al cargar los turnos</p>';
+                });
+        }
 
         // Actualizar cada 10 segundos
         setInterval(cargarTurnos, 10000);
+
         function editarTurno(turnoId) {
             fetch('/api/turnos')
                 .then(response => response.json())
@@ -448,25 +608,19 @@
                         return;
                     }
                     
-                    // Llenar el formulario con los datos actuales
                     document.getElementById('editar_turno_id').value = turno.id;
                     document.getElementById('editar_paciente_nombre').value = turno.paciente_nombre;
                     document.getElementById('editar_paciente_edad').value = turno.paciente_edad;
                     document.getElementById('editar_tipo').value = turno.tipo;
                     document.getElementById('editar_estacion_actual').value = turno.estacion_actual;
                     
-                    // Cargar doctores en el selector
                     cargarDoctoresParaEdicion();
-                    
-                    // Mostrar/ocultar selector de doctor según estación
                     mostrarSelectorDoctorEdicion(turno.estacion_actual);
                     
-                    // Seleccionar el doctor actual si existe
                     if (turno.doctor_asignado) {
                         document.getElementById('editar_doctor_asignado').value = turno.doctor_asignado;
                     }
                     
-                    // Mostrar el modal
                     document.getElementById('modalEditar').classList.remove('hidden');
                 })
                 .catch(error => {
@@ -475,7 +629,6 @@
                 });
         }
 
-        // Función para cargar doctores en el modal de edición
         function cargarDoctoresParaEdicion() {
             fetch('/api/doctores')
                 .then(response => response.json())
@@ -492,10 +645,9 @@
                 });
         }
 
-        // Mostrar/ocultar selector de doctor en edición
         function mostrarSelectorDoctorEdicion(estacionId) {
             const container = document.getElementById('editar_selector_doctor_container');
-            if (estacionId == 4) { // Consulta Médica
+            if (estacionId == 4) {
                 container.style.display = 'block';
             } else {
                 container.style.display = 'none';
@@ -503,12 +655,10 @@
             }
         }
 
-        // Cerrar modal
         function cerrarModal() {
             document.getElementById('modalEditar').classList.add('hidden');
         }
 
-        // Enviar formulario de edición
         document.getElementById('formEditarTurno').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -547,26 +697,31 @@
             });
         });
 
-        // Cerrar modal al hacer clic en la X
         document.querySelector('.close').addEventListener('click', cerrarModal);
 
-        // Cerrar modal al hacer clic fuera del contenido
         document.getElementById('modalEditar').addEventListener('click', function(e) {
             if (e.target === this) {
                 cerrarModal();
             }
         });
 
-        // Mostrar/ocultar selector de doctor cuando cambia la estación en edición
         document.getElementById('editar_estacion_actual').addEventListener('change', function() {
             mostrarSelectorDoctorEdicion(this.value);
         });
 
-        // Función para cancelar turno (se mantiene igual)
+        // Función para cancelar turno
         function cancelarTurno(turnoId) {
-            if (confirm('¿Estás seguro de que quieres cancelar este turno?')) {
+            const razon = prompt('¿Por qué se cancela el turno?\n\nOpciones:\n1. Paciente no se presentó\n2. Error en datos\n3. Paciente reagendó\n4. Otro', 'Paciente no se presentó');
+            
+            if (razon === null) return;
+            
+            if (razon && confirm('¿Estás seguro de que quieres cancelar este turno?')) {
                 fetch(`/api/turnos/${turnoId}/cancelar`, {
-                    method: 'PUT'
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ razon: razon })
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -581,10 +736,190 @@
                 });
             }
         }
-        
 
+        // =============================================
+        // FUNCIONES DE BOTONES RÁPIDOS
+        // =============================================
+        function limpiarFormulario() {
+            document.getElementById('formTurno').reset();
+            mostrarOpcionesEspecificas();
+            alert('✅ Formulario limpiado');
+        }
 
+        function exportarDatos() {
+            alert('📤 Función de exportación en desarrollo...');
+            // Aquí iría la lógica para exportar a Excel/PDF
+        }
 
+        function reiniciarSistema() {
+            if (confirm('¿Estás seguro de querer reiniciar el sistema? Esto limpiará todos los turnos activos.')) {
+                alert('🔄 Sistema reiniciado (función en desarrollo)');
+            }
+        }
+
+        function abrirConfiguracion() {
+            alert('⚙️ Panel de configuración en desarrollo...');
+        }
+
+        function verManual() {
+            alert('📖 Abriendo manual de usuario...');
+        }
+
+        function hacerBackup() {
+            alert('💾 Creando backup de la base de datos...');
+        }
+
+        // =============================================
+        // FUNCIONES DE ESTADÍSTICAS
+        // =============================================
+        function abrirEstadisticas() {
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('estadistica_fecha').value = hoy;
+            
+            const mesActual = new Date().toISOString().slice(0, 7);
+            document.getElementById('estadistica_mes').value = mesActual;
+            
+            cargarEstadisticas();
+            document.getElementById('modalEstadisticas').classList.remove('hidden');
+        }
+
+        function cerrarEstadisticas() {
+            document.getElementById('modalEstadisticas').classList.add('hidden');
+        }
+
+        function cargarEstadisticas() {
+            const fecha = document.getElementById('estadistica_fecha').value;
+            const url = fecha ? `/api/estadisticas/dia/${fecha}` : '/api/estadisticas/dia';
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(estadisticas => {
+                    mostrarEstadisticasDia(estadisticas);
+                })
+                .catch(error => {
+                    console.error('Error cargando estadísticas:', error);
+                    document.getElementById('contenedorEstadisticas').innerHTML = '<p>Error al cargar estadísticas</p>';
+                });
+        }
+
+        function cargarEstadisticasMensual() {
+            const mes = document.getElementById('estadistica_mes').value;
+            if (!mes) return;
+            
+            const [año, mesNum] = mes.split('-');
+            const url = `/api/estadisticas/mes/${mesNum}/${año}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(estadisticas => {
+                    mostrarEstadisticasMes(estadisticas);
+                })
+                .catch(error => {
+                    console.error('Error cargando estadísticas mensuales:', error);
+                    document.getElementById('contenedorEstadisticas').innerHTML = '<p>Error al cargar estadísticas mensuales</p>';
+                });
+        }
+
+        function mostrarEstadisticasDia(estadisticas) {
+            const contenedor = document.getElementById('contenedorEstadisticas');
+            
+            const html = `
+                <h3>📅 Estadísticas del ${estadisticas.fecha}</h3>
+                
+                <div class="estadisticas-grid">
+                    <div class="estadistica-card">
+                        <div class="estadistica-label">Total Turnos</div>
+                        <div class="estadistica-valor">${estadisticas.total_turnos}</div>
+                    </div>
+                    
+                    <div class="estadistica-card">
+                        <div class="estadistica-label">Cancelados</div>
+                        <div class="estadistica-valor ${estadisticas.cancelados > 0 ? 'estadistica-negativa' : ''}">
+                            ${estadisticas.cancelados}
+                        </div>
+                        <div class="estadistica-label">${estadisticas.tasa_cancelacion.toFixed(1)}%</div>
+                    </div>
+                    
+                    <div class="estadistica-card">
+                        <div class="estadistica-label">Finalizados</div>
+                        <div class="estadistica-valor">${estadisticas.finalizados}</div>
+                    </div>
+                    
+                    <div class="estadistica-card">
+                        <div class="estadistica-label">Activos</div>
+                        <div class="estadistica-valor">${estadisticas.activos}</div>
+                    </div>
+                </div>
+                
+                ${estadisticas.cancelaciones_por_razon && estadisticas.cancelaciones_por_razon.length > 0 ? `
+                    <div class="estadistica-tendencia">
+                        <h4>📉 Cancelaciones por Razón</h4>
+                        ${estadisticas.cancelaciones_por_razon.map(razon => `
+                            <div class="tendencia-item">
+                                <span>${razon.razon_cancelacion || 'No especificada'}</span>
+                                <strong>${razon.cantidad}</strong>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : '<p>No hay cancelaciones hoy</p>'}
+            `;
+            
+            contenedor.innerHTML = html;
+        }
+
+        function mostrarEstadisticasMes(estadisticas) {
+            const contenedor = document.getElementById('contenedorEstadisticas');
+            
+            const html = `
+                <h3>📈 Estadísticas del Mes: ${estadisticas.mes}</h3>
+                
+                <div class="estadisticas-grid">
+                    <div class="estadistica-card">
+                        <div class="estadistica-label">Total Turnos</div>
+                        <div class="estadistica-valor">${estadisticas.total_turnos}</div>
+                    </div>
+                    
+                    <div class="estadistica-card">
+                        <div class="estadistica-label">Cancelados</div>
+                        <div class="estadistica-valor ${estadisticas.cancelados > 0 ? 'estadistica-negativa' : ''}">
+                            ${estadisticas.cancelados}
+                        </div>
+                        <div class="estadistica-label">${estadisticas.tasa_cancelacion.toFixed(1)}%</div>
+                    </div>
+                    
+                    <div class="estadistica-card">
+                        <div class="estadistica-label">Finalizados</div>
+                        <div class="estadistica-valor">${estadisticas.finalizados}</div>
+                    </div>
+                </div>
+                
+                ${estadisticas.tendencia_diaria && estadisticas.tendencia_diaria.length > 0 ? `
+                    <div class="estadistica-tendencia">
+                        <h4>📊 Tendencia Diaria</h4>
+                        ${estadisticas.tendencia_diaria.map(dia => `
+                            <div class="tendencia-item">
+                                <span>${dia.fecha}</span>
+                                <span>Turnos: <strong>${dia.turnos}</strong></span>
+                                <span class="estadistica-negativa">Cancel: ${dia.cancelados}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            `;
+            
+            contenedor.innerHTML = html;
+        }
+
+        function imprimirEstadisticas() {
+            window.print();
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('modalEstadisticas').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarEstadisticas();
+            }
+        });
     </script>
 </body>
 </html>

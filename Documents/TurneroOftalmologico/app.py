@@ -1,13 +1,15 @@
-# app.py - REEMPLAZA TODO EL ARCHIVO
+# app.py
 from flask import Flask, render_template, jsonify, request
 import sqlite3
+from estadisticas import registrar_historial, obtener_estadisticas_dia, obtener_estadisticas_mensual
 from datetime import datetime
 
 app = Flask(__name__)
 
 def get_db_connection():
-    conn = sqlite3.connect('turnos.db')
+    conn = sqlite3.connect('turnos.db', timeout=30)
     conn.row_factory = sqlite3.Row
+    conn.execute('PRAGMA journal_mode=WAL')
     return conn
 
 @app.route('/')
@@ -53,37 +55,74 @@ def get_estaciones_disponibles():
 @app.route('/api/turnos/nuevo', methods=['POST'])
 def crear_turno():
     data = request.json
-    
-    conn = get_db_connection()
-    ultimo_turno = conn.execute('SELECT numero FROM turnos ORDER BY id DESC LIMIT 1').fetchone()
-    
-    if ultimo_turno:
-        ultimo_numero = int(ultimo_turno['numero'][1:])
-        nuevo_numero = f"A{ultimo_numero + 1:03d}"
-    else:
-        nuevo_numero = "A001"
+    conn = None
+    try:
+        conn = get_db_connection()
         
-    # CORREGIDO: Usar 4 para Consulta Médica (como en tu HTML)
-    estacion_inicial = data.get('estacion_inicial', 1)
-    doctor_asignado = data.get('doctor_asignado') if estacion_inicial == 4 else None  # ← 4 no 6
-    
-    # INSERT SIMPLIFICADO - sin estacion_siguiente
-    conn.execute('''
-        INSERT INTO turnos (numero, paciente_nombre, paciente_edad, tipo, estacion_actual, doctor_asignado)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (nuevo_numero, data['paciente_nombre'], data['paciente_edad'], data['tipo'], estacion_inicial, doctor_asignado))
-    
-    conn.commit()
-    conn.close()
-    
-    return jsonify({'success': True, 'numero_turno': nuevo_numero})
+        # Obtener fecha actual
+        fecha_actual = datetime.now().strftime('%Y-%m-%d')
+        
+        # Buscar último turno de HOY
+        ultimo_turno = conn.execute(
+            'SELECT numero FROM turnos WHERE DATE(timestamp_creacion) = ? ORDER BY id DESC LIMIT 1',
+            (fecha_actual,)
+        ).fetchone()
+        
+        if ultimo_turno:
+            # Extraer número del formato A001, A002, etc.
+            ultimo_numero = int(ultimo_turno['numero'][1:])
+            nuevo_numero = f"A{ultimo_numero + 1:03d}"
+        else:
+            # Primer turno del día
+            nuevo_numero = "A001"
+        
+        estacion_inicial = data.get('estacion_inicial', 1)
+        doctor_asignado = data.get('doctor_asignado') if estacion_inicial == 4 else None
+        
+        # INSERT SIMPLIFICADO - sin estacion_siguiente
+        conn.execute('''
+            INSERT INTO turnos (numero, paciente_nombre, paciente_edad, tipo, estacion_actual, doctor_asignado)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (nuevo_numero, data['paciente_nombre'], data['paciente_edad'], data['tipo'], estacion_inicial, doctor_asignado))
+        
+        # Obtener el ID del turno recién creado
+        turno_id = conn.execute('SELECT last_insert_rowid() as id').fetchone()['id']
+        
+        # Registrar en historial
+        registrar_historial(turno_id, 'CREADO', f'Tipo: {data["tipo"]}, Estación: {estacion_inicial}')
+        
+        conn.commit()
+        
+        return jsonify({'success': True, 'numero_turno': nuevo_numero, 'turno_id': turno_id})
+        
+    except Exception as e:
+        print(f"Error al crear turno: {e}")
+        if conn:
+            conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+        
+    finally:
+        if conn:
+            conn.close()
 
+# API para cancelacion de turnos
 @app.route('/api/turnos/<int:turno_id>/cancelar', methods=['PUT'])
 def cancelar_turno(turno_id):
+    data = request.json
+    razon = data.get('razon', 'No especificada') if data else 'No especificada'
+    
     conn = get_db_connection()
-    conn.execute('UPDATE turnos SET estado = "CANCELADO" WHERE id = ?', (turno_id,))
+    conn.execute('''
+        UPDATE turnos 
+        SET estado = "CANCELADO", timestamp_cancelado = CURRENT_TIMESTAMP, razon_cancelacion = ?
+        WHERE id = ?
+    ''', (razon, turno_id))
     conn.commit()
     conn.close()
+    
+    # Registrar en historial para estadísticas
+    registrar_historial(turno_id, 'CANCELADO', f'Razón: {razon}', 'recepcion')
+    
     return jsonify({'success': True})
 
 @app.route('/api/turnos/<int:turno_id>/editar', methods=['PUT'])
@@ -100,6 +139,32 @@ def editar_turno(turno_id):
     conn.commit()
     conn.close()
     return jsonify({'success': True})
+
+# API: Obtener estadísticas del día
+@app.route('/api/estadisticas/dia')
+@app.route('/api/estadisticas/dia/<fecha>')
+def get_estadisticas_dia(fecha=None):
+    try:
+        stats = obtener_estadisticas_dia(fecha)
+        print(f"📊 Estadísticas del día {fecha}: {stats}")  # Debug
+        return jsonify(stats)
+    except Exception as e:
+        print(f"Error en API estadísticas día: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# API: Obtener estadísticas del mes
+@app.route('/api/estadisticas/mes')
+@app.route('/api/estadisticas/mes/<mes>/<anio>')
+def get_estadisticas_mes(mes=None, anio=None):
+    try:
+        mes = int(mes) if mes else None
+        anio = int(anio) if anio else None
+        stats = obtener_estadisticas_mensual(mes, anio)
+        print(f"Estadísticas del mes {mes}/{anio}: {stats}")  # Debug
+        return jsonify(stats)
+    except Exception as e:
+        print(f"Error en API estadísticas mes: {e}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
